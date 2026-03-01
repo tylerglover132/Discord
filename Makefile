@@ -1,25 +1,20 @@
-# Default compiler flags (Fixed case to match usage)
-CXXFLAGS = -std=c++17 -Wall
+CXX = g++
+# Using C++17 is recommended for modern Boost
+CXXFLAGS = -Wall -Wextra -std=c++17 -O2 
 
-# Detect the Operating System
-UNAME_S := $(shell uname -s)
+# We need OpenSSL for TLS and pthread for asynchronous tasks later
+LDFLAGS = -lssl -lcrypto -lpthread
 
-# macOS Configuration (Removed tabs on variable assignments)
-ifeq ($(UNAME_S),Darwin)
-    CXX = clang++
-    OPENSSL_DIR := $(shell brew --prefix openssl)
-    INCLUDES = -I$(OPENSSL_DIR)/include
-    LDFLAGS = -L$(OPENSSL_DIR)/lib -lssl -lcrypto
-else
-# Linux / Raspberry Pi Configuration
-    CXX = g++
-    INCLUDES = 
-    LDFLAGS = -lssl -lcrypto
-endif
+# Depending on your OS and Boost version, you might also need to link boost_system
+# LDFLAGS += -lboost_system
 
-# The actual build command (Fixed missing closing parentheses)
-discord_bot: main.cpp
-	$(CXX) $(CXXFLAGS) main.cpp $(INCLUDES) -o discord_bot $(LDFLAGS)
+TARGET = my_bot
+SRC = main.cpp bot.cpp
+
+all: $(TARGET)
+
+$(TARGET): $(SRC)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f discord_bot
+	rm -f $(TARGET)
